@@ -1,0 +1,2384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BST Studio | Binary Search Tree Visualizer</title>
+
+<style>
+:root{
+    --bg:#f5f7ff;
+    --card:rgba(255,255,255,.86);
+    --text:#172033;
+    --muted:#64748b;
+    --primary:#635bff;
+    --primary2:#8b5cf6;
+    --line:#cbd5e1;
+    --border:rgba(99,91,255,.14);
+    --success:#10b981;
+    --danger:#ef4444;
+    --warning:#f59e0b;
+    --shadow:0 18px 50px rgba(31,41,55,.09);
+}
+
+body.dark{
+    --bg:#0b1020;
+    --card:rgba(18,25,45,.88);
+    --text:#f8fafc;
+    --muted:#94a3b8;
+    --line:#475569;
+    --border:rgba(139,92,246,.22);
+    --shadow:0 18px 50px rgba(0,0,0,.35);
+}
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+html{
+    scroll-behavior:smooth;
+}
+
+body{
+    font-family:Inter,Segoe UI,Arial,sans-serif;
+    background:
+        radial-gradient(circle at 10% 10%,rgba(99,91,255,.12),transparent 25%),
+        radial-gradient(circle at 90% 20%,rgba(139,92,246,.10),transparent 25%),
+        var(--bg);
+    color:var(--text);
+    min-height:100vh;
+    transition:.3s;
+}
+
+/* NAVBAR */
+
+.navbar{
+    position:sticky;
+    top:0;
+    z-index:100;
+    backdrop-filter:blur(18px);
+    background:rgba(245,247,255,.75);
+    border-bottom:1px solid var(--border);
+}
+
+body.dark .navbar{
+    background:rgba(11,16,32,.75);
+}
+
+.nav-inner{
+    max-width:1400px;
+    margin:auto;
+    padding:15px 25px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.logo{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    font-weight:800;
+    font-size:20px;
+}
+
+.logo-icon{
+    width:42px;
+    height:42px;
+    border-radius:13px;
+    display:grid;
+    place-items:center;
+    color:white;
+    background:linear-gradient(135deg,var(--primary),var(--primary2));
+    box-shadow:0 8px 22px rgba(99,91,255,.3);
+}
+
+.nav-actions button{
+    border:none;
+    background:var(--card);
+    color:var(--text);
+    width:42px;
+    height:42px;
+    border-radius:12px;
+    cursor:pointer;
+    font-size:18px;
+}
+
+/* HERO */
+
+.hero{
+    max-width:1400px;
+    margin:45px auto 25px;
+    padding:0 25px;
+    display:grid;
+    grid-template-columns:1.35fr .65fr;
+    gap:25px;
+}
+
+.hero-main{
+    padding:38px;
+    border-radius:28px;
+    color:white;
+    background:
+        linear-gradient(135deg,rgba(99,91,255,.98),rgba(124,58,237,.95));
+    box-shadow:0 25px 70px rgba(99,91,255,.25);
+    position:relative;
+    overflow:hidden;
+}
+
+.hero-main:after{
+    content:"";
+    position:absolute;
+    width:300px;
+    height:300px;
+    border-radius:50%;
+    right:-100px;
+    top:-120px;
+    background:rgba(255,255,255,.10);
+}
+
+.badge{
+    display:inline-block;
+    padding:7px 12px;
+    border-radius:30px;
+    background:rgba(255,255,255,.16);
+    font-size:12px;
+    font-weight:700;
+    margin-bottom:18px;
+}
+
+.hero h1{
+    font-size:clamp(34px,5vw,62px);
+    line-height:1.02;
+    margin-bottom:18px;
+}
+
+.hero p{
+    max-width:700px;
+    line-height:1.7;
+    opacity:.9;
+}
+
+.hero-side{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:28px;
+    padding:28px;
+    box-shadow:var(--shadow);
+}
+
+.rule{
+    margin-top:20px;
+    padding:20px;
+    border-radius:18px;
+    background:rgba(99,91,255,.08);
+    text-align:center;
+    font-size:25px;
+    font-weight:800;
+}
+
+/* MAIN */
+
+.container{
+    max-width:1400px;
+    margin:auto;
+    padding:0 25px 50px;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:350px 1fr;
+    gap:22px;
+}
+
+.card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:24px;
+    padding:22px;
+    box-shadow:var(--shadow);
+    backdrop-filter:blur(18px);
+}
+
+.card-title{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:18px;
+}
+
+.card-title h2{
+    font-size:18px;
+}
+
+.label{
+    font-size:12px;
+    color:var(--muted);
+    font-weight:700;
+    margin-bottom:7px;
+    display:block;
+}
+
+/* INPUT */
+
+.input-row{
+    display:flex;
+    gap:8px;
+    margin-bottom:12px;
+}
+
+input,select{
+    width:100%;
+    padding:13px 14px;
+    border-radius:12px;
+    border:1px solid var(--border);
+    background:var(--bg);
+    color:var(--text);
+    outline:none;
+    font-size:14px;
+}
+
+input:focus,select:focus{
+    border-color:var(--primary);
+    box-shadow:0 0 0 3px rgba(99,91,255,.12);
+}
+
+/* BUTTONS */
+
+button{
+    border:0;
+    cursor:pointer;
+    border-radius:11px;
+    padding:11px 14px;
+    font-weight:700;
+    transition:.2s;
+}
+
+button:hover{
+    transform:translateY(-2px);
+}
+
+.primary{
+    background:linear-gradient(135deg,var(--primary),var(--primary2));
+    color:white;
+}
+
+.success{
+    background:#dcfce7;
+    color:#047857;
+}
+
+.danger{
+    background:#fee2e2;
+    color:#b91c1c;
+}
+
+.neutral{
+    background:#e2e8f0;
+    color:#334155;
+}
+
+body.dark .neutral{
+    background:#273449;
+    color:#e2e8f0;
+}
+
+.full{
+    width:100%;
+}
+
+/* QUICK BUTTONS */
+
+.quick{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+}
+
+/* STATUS */
+
+.status{
+    margin-top:15px;
+    padding:13px;
+    border-radius:12px;
+    background:rgba(99,91,255,.08);
+    color:var(--text);
+    font-size:13px;
+    line-height:1.5;
+}
+
+/* TREE */
+
+.tree-card{
+    min-width:0;
+}
+
+.tree-toolbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+}
+
+.tree-area{
+    margin-top:15px;
+    height:580px;
+    overflow:auto;
+    border-radius:20px;
+    background:
+        linear-gradient(rgba(99,91,255,.035) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(99,91,255,.035) 1px,transparent 1px);
+    background-size:28px 28px;
+    border:1px solid var(--border);
+    position:relative;
+}
+
+#treeCanvas{
+    position:relative;
+    width:1200px;
+    min-height:550px;
+}
+
+#edges{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    z-index:1;
+    overflow:visible;
+}
+
+.edge{
+    stroke:var(--line);
+    stroke-width:3;
+    fill:none;
+    stroke-dasharray:8 5;
+    animation:drawLine .5s ease;
+}
+
+@keyframes drawLine{
+    from{stroke-dashoffset:30;opacity:0}
+    to{stroke-dashoffset:0;opacity:1}
+}
+
+.node{
+    position:absolute;
+    width:58px;
+    height:58px;
+    border-radius:50%;
+    display:grid;
+    place-items:center;
+    transform:translate(-50%,-50%);
+    background:linear-gradient(135deg,var(--primary),var(--primary2));
+    color:white;
+    font-weight:800;
+    font-size:16px;
+    border:4px solid var(--card);
+    box-shadow:0 8px 22px rgba(99,91,255,.28);
+    z-index:5;
+    transition:.35s;
+}
+
+.node:hover{
+    transform:translate(-50%,-50%) scale(1.15);
+}
+
+.node.found{
+    background:linear-gradient(135deg,#10b981,#059669);
+    box-shadow:0 0 0 8px rgba(16,185,129,.15),0 10px 30px rgba(16,185,129,.3);
+    animation:pulse .8s infinite alternate;
+}
+
+.node.path{
+    background:linear-gradient(135deg,#f59e0b,#ea580c);
+}
+
+@keyframes pulse{
+    to{transform:translate(-50%,-50%) scale(1.13)}
+}
+
+.empty-tree{
+    position:absolute;
+    inset:0;
+    display:grid;
+    place-items:center;
+    text-align:center;
+    color:var(--muted);
+}
+
+.empty-tree div{
+    max-width:350px;
+}
+
+.empty-tree .big{
+    font-size:70px;
+    margin-bottom:10px;
+}
+
+/* STATS */
+
+.stats{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:12px;
+    margin-top:18px;
+}
+
+.stat{
+    padding:16px;
+    border-radius:16px;
+    background:rgba(99,91,255,.07);
+}
+
+.stat small{
+    color:var(--muted);
+}
+
+.stat strong{
+    display:block;
+    font-size:25px;
+    margin-top:5px;
+}
+
+/* LOWER GRID */
+
+.lower{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:22px;
+    margin-top:22px;
+}
+
+.traversal{
+    display:grid;
+    gap:12px;
+}
+
+.traversal-box{
+    padding:15px;
+    border-radius:15px;
+    background:rgba(99,91,255,.06);
+}
+
+.traversal-box h3{
+    font-size:14px;
+    margin-bottom:8px;
+}
+
+.traversal-value{
+    color:var(--primary);
+    font-weight:700;
+    word-break:break-word;
+    line-height:1.6;
+}
+
+/* SEARCH PATH */
+
+.path-box{
+    min-height:90px;
+    display:flex;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:8px;
+}
+
+.path-item{
+    padding:9px 13px;
+    border-radius:30px;
+    background:#fff7ed;
+    color:#c2410c;
+    font-weight:800;
+}
+
+body.dark .path-item{
+    background:#431f0b;
+    color:#fdba74;
+}
+
+.arrow{
+    color:var(--muted);
+    font-weight:bold;
+}
+
+/* EXAMPLES */
+
+.examples{
+    margin-top:22px;
+}
+
+.example-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:12px;
+}
+
+.example{
+    padding:15px;
+    border:1px solid var(--border);
+    border-radius:17px;
+    background:rgba(99,91,255,.035);
+}
+
+.example h3{
+    font-size:14px;
+    margin-bottom:7px;
+}
+
+.example p{
+    font-size:12px;
+    color:var(--muted);
+    line-height:1.6;
+    min-height:40px;
+}
+
+.example button{
+    margin-top:12px;
+    width:100%;
+    background:var(--primary);
+    color:white;
+}
+
+/* THEORY */
+
+.theory{
+    margin-top:22px;
+}
+
+.theory-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:14px;
+}
+
+.theory-box{
+    padding:18px;
+    border-radius:17px;
+    background:rgba(99,91,255,.055);
+}
+
+.theory-box h3{
+    margin-bottom:9px;
+}
+
+.theory-box p,
+.theory-box li{
+    color:var(--muted);
+    font-size:13px;
+    line-height:1.7;
+}
+
+.theory-box ul{
+    padding-left:18px;
+}
+
+/* COMPLEXITY */
+
+.complexity{
+    margin-top:22px;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+th,td{
+    padding:13px;
+    text-align:left;
+    border-bottom:1px solid var(--border);
+    font-size:13px;
+}
+
+th{
+    color:var(--primary);
+}
+
+/* TOAST */
+
+.toast{
+    position:fixed;
+    right:22px;
+    bottom:22px;
+    padding:15px 18px;
+    border-radius:14px;
+    color:white;
+    background:#172033;
+    box-shadow:0 15px 35px rgba(0,0,0,.2);
+    transform:translateY(120px);
+    opacity:0;
+    transition:.3s;
+    z-index:999;
+}
+
+.toast.show{
+    transform:translateY(0);
+    opacity:1;
+}
+
+/* FOOTER */
+
+footer{
+    text-align:center;
+    padding:30px;
+    color:var(--muted);
+    font-size:13px;
+}
+
+/* RESPONSIVE */
+
+@media(max-width:1100px){
+    .hero{
+        grid-template-columns:1fr;
+    }
+
+    .grid{
+        grid-template-columns:1fr;
+    }
+
+    .example-grid{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+    .theory-grid{
+        grid-template-columns:1fr;
+    }
+}
+
+@media(max-width:700px){
+    .hero{
+        margin-top:25px;
+    }
+
+    .hero-main{
+        padding:25px;
+    }
+
+    .hero h1{
+        font-size:38px;
+    }
+
+    .stats{
+        grid-template-columns:1fr 1fr;
+    }
+
+    .lower{
+        grid-template-columns:1fr;
+    }
+
+    .example-grid{
+        grid-template-columns:1fr;
+    }
+
+    .tree-area{
+        height:450px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+    <div class="nav-inner">
+        <div class="logo">
+            <div class="logo-icon">🌳</div>
+            BST Studio
+        </div>
+
+        <div class="nav-actions">
+            <button onclick="toggleTheme()" title="Toggle theme" id="themeBtn">🌙</button>
+        </div>
+    </div>
+</nav>
+
+
+<!-- HERO -->
+<section class="hero">
+
+    <div class="hero-main">
+        <span class="badge">DSA • INTERACTIVE LEARNING</span>
+
+        <h1>Binary Search<br>Tree Studio</h1>
+
+        <p>
+            Build, explore, search and understand Binary Search Trees
+            through an interactive visual experience.
+        </p>
+    </div>
+
+    <div class="hero-side">
+
+        <h2>BST Golden Rule</h2>
+
+        <p style="margin-top:10px;color:var(--muted);line-height:1.6;">
+            For every node, all values in the left subtree are smaller
+            and all values in the right subtree are greater.
+        </p>
+
+        <div class="rule">
+            LEFT &lt; ROOT &lt; RIGHT
+        </div>
+
+    </div>
+
+</section>
+
+
+<div class="container">
+
+    <div class="grid">
+
+        <!-- CONTROLS -->
+        <aside>
+
+            <div class="card">
+
+                <div class="card-title">
+                    <h2>⚙️ Operations</h2>
+                </div>
+
+                <label class="label">Enter a value</label>
+
+                <div class="input-row">
+
+                    <input
+                        type="number"
+                        id="valueInput"
+                        placeholder="Example: 50"
+                        onkeydown="enterAction(event)"
+                    >
+
+                    <button class="primary" onclick="insertValue()">
+                        Insert
+                    </button>
+
+                </div>
+
+                <div class="quick">
+
+                    <button class="success" onclick="searchValue()">
+                        🔍 Search
+                    </button>
+
+                    <button class="danger" onclick="deleteValue()">
+                        🗑️ Delete
+                    </button>
+
+                    <button class="neutral" onclick="clearTree()">
+                        🧹 Clear
+                    </button>
+
+                    <button class="neutral" onclick="randomTree()">
+                        🎲 Random
+                    </button>
+
+                </div>
+
+                <div class="status" id="status">
+                    🌱 Start by inserting a value or loading an example.
+                </div>
+
+            </div>
+
+
+            <div class="card" style="margin-top:18px;">
+
+                <div class="card-title">
+                    <h2>📋 Build From Values</h2>
+                </div>
+
+                <label class="label">
+                    Enter comma-separated values
+                </label>
+
+                <input
+                    id="multiInput"
+                    placeholder="50,30,70,20,40,60,80"
+                >
+
+                <button
+                    class="primary full"
+                    style="margin-top:10px;"
+                    onclick="buildFromInput()"
+                >
+                    🌱 Build Tree
+                </button>
+
+            </div>
+
+
+            <div class="card" style="margin-top:18px;">
+
+                <div class="card-title">
+                    <h2>🔎 Search Path</h2>
+                </div>
+
+                <div class="path-box" id="searchPath">
+                    <span style="color:var(--muted);font-size:13px;">
+                        Search for a value to see the path.
+                    </span>
+                </div>
+
+            </div>
+
+        </aside>
+
+
+        <!-- TREE -->
+        <main>
+
+            <div class="card tree-card">
+
+                <div class="tree-toolbar">
+
+                    <div>
+                        <h2>🌳 Live Tree Visualization</h2>
+                        <p style="color:var(--muted);font-size:13px;margin-top:5px;">
+                            Insert, search or delete nodes and watch the BST change.
+                        </p>
+                    </div>
+
+                    <button class="neutral" onclick="fitTree()">
+                        🎯 Center Tree
+                    </button>
+
+                </div>
+
+                <div class="tree-area" id="treeArea">
+
+                    <div id="treeCanvas">
+
+                        <svg id="edges"></svg>
+
+                        <div id="nodes"></div>
+
+                        <div class="empty-tree" id="emptyTree">
+
+                            <div>
+                                <div class="big">🌳</div>
+                                <h2>Your tree is empty</h2>
+                                <p style="margin-top:8px;">
+                                    Insert a value or choose one of the examples below.
+                                </p>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="stats">
+
+                    <div class="stat">
+                        <small>Nodes</small>
+                        <strong id="nodeCount">0</strong>
+                    </div>
+
+                    <div class="stat">
+                        <small>Height</small>
+                        <strong id="height">0</strong>
+                    </div>
+
+                    <div class="stat">
+                        <small>Minimum</small>
+                        <strong id="minimum">—</strong>
+                    </div>
+
+                    <div class="stat">
+                        <small>Maximum</small>
+                        <strong id="maximum">—</strong>
+                    </div>
+
+                </div>
+
+                <div
+                    id="treeType"
+                    class="status"
+                    style="margin-top:12px;"
+                >
+                    Tree status: Empty
+                </div>
+
+            </div>
+
+        </main>
+
+    </div>
+
+
+    <!-- TRAVERSALS -->
+    <section class="lower">
+
+        <div class="card">
+
+            <div class="card-title">
+                <h2>🔄 Traversals</h2>
+            </div>
+
+            <div class="traversal">
+
+                <div class="traversal-box">
+                    <h3>Inorder — Left → Root → Right</h3>
+
+                    <div class="traversal-value" id="inorder">
+                        —
+                    </div>
+                </div>
+
+                <div class="traversal-box">
+                    <h3>Preorder — Root → Left → Right</h3>
+
+                    <div class="traversal-value" id="preorder">
+                        —
+                    </div>
+                </div>
+
+                <div class="traversal-box">
+                    <h3>Postorder — Left → Right → Root</h3>
+
+                    <div class="traversal-value" id="postorder">
+                        —
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="card-title">
+                <h2>🧠 Operation Explanation</h2>
+            </div>
+
+            <div
+                id="explanation"
+                style="color:var(--muted);line-height:1.8;font-size:14px;"
+            >
+                Perform an operation to see how the BST works.
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- EXAMPLES -->
+    <section class="card examples">
+
+        <div class="card-title">
+
+            <div>
+                <h2>🎯 Practice Examples</h2>
+
+                <p style="color:var(--muted);font-size:13px;margin-top:5px;">
+                    Choose an example and explore its structure.
+                </p>
+            </div>
+
+        </div>
+
+
+        <div class="example-grid">
+
+            <div class="example">
+                <h3>Example 01 • Balanced</h3>
+                <p>50, 30, 70, 20, 40, 60, 80</p>
+                <button onclick="loadExample(0)">Load</button>
+            </div>
+
+            <div class="example">
+                <h3>Example 02 • Left Skewed</h3>
+                <p>50, 40, 30, 20, 10</p>
+                <button onclick="loadExample(1)">Load</button>
+            </div>
+
+            <div class="example">
+                <h3>Example 03 • Right Skewed</h3>
+                <p>10, 20, 30, 40, 50</p>
+                <button onclick="loadExample(2)">Load</button>
+            </div>
+
+            <div class="example">
+                <h3>Example 04 • Complete</h3>
+                <p>40, 20, 60, 10, 30, 50, 70</p>
+                <button onclick="loadExample(3)">Load</button>
+            </div>
+
+            <div class="example">
+                <h3>Example 05 • Random</h3>
+                <p>45, 15, 79, 10, 25, 60, 90, 20, 30</p>
+                <button onclick="loadExample(4)">Load</button>
+            </div>
+
+            <div class="example">
+                <h3>Example 06 • Nine Nodes</h3>
+                <p>60, 40, 80, 20, 50, 70, 90, 10, 30</p>
+                <button onclick="loadExample(5)">Load</button>
+            </div>
+
+            <div class="example">
+                <h3>Example 07 • Mixed</h3>
+                <p>55, 25, 75, 15, 35, 65, 85, 5, 20</p>
+                <button onclick="loadExample(6)">Load</button>
+            </div>
+
+            <div class="example">
+                <h3>Example 08 • Large</h3>
+                <p>70, 40, 90, 20, 50, 80, 100, 10, 30</p>
+                <button onclick="loadExample(7)">Load</button>
+            </div>
+
+            <div class="example">
+                <h3>Example 09 • Balanced 2</h3>
+                <p>65, 35, 85, 20, 45, 75, 95, 15, 25</p>
+                <button onclick="loadExample(8)">Load</button>
+            </div>
+
+            <div class="example">
+                <h3>Example 10 • Ten Nodes</h3>
+                <p>50, 30, 70, 20, 40, 60, 80, 10, 35, 90</p>
+                <button onclick="loadExample(9)">Load</button>
+            </div>
+
+            <div class="example">
+                <h3>Example 11 • Different Shape</h3>
+                <p>42, 18, 65, 9, 27, 54, 81, 22, 31</p>
+                <button onclick="loadExample(10)">Load</button>
+            </div>
+
+            <div class="example">
+                <h3>Example 12 • Advanced</h3>
+                <p>100, 50, 150, 25, 75, 125, 175, 10, 60, 90</p>
+                <button onclick="loadExample(11)">Load</button>
+            </div>
+
+            <div class="example">
+                <h3>Example 13 • Search Practice</h3>
+                <p>50, 25, 75, 12, 37, 62, 87, 6, 18</p>
+                <button onclick="loadExample(12)">Load</button>
+            </div>
+
+            <div class="example">
+                <h3>Example 14 • Delete Practice</h3>
+                <p>50, 30, 70, 20, 40, 60, 80, 35, 65</p>
+                <button onclick="loadExample(13)">Load</button>
+            </div>
+
+            <div class="example">
+                <h3>Example 15 • Deep Tree</h3>
+                <p>80, 40, 120, 20, 60, 100, 140, 10, 30, 50, 70</p>
+                <button onclick="loadExample(14)">Load</button>
+            </div>
+
+            <div class="example">
+                <h3>Example 16 • Lab Practice</h3>
+                <p>55, 30, 80, 15, 40, 70, 95, 10, 20, 35, 45</p>
+                <button onclick="loadExample(15)">Load</button>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- THEORY -->
+    <section class="card theory">
+
+        <div class="card-title">
+            <h2>📚 BST Quick Theory</h2>
+        </div>
+
+        <div class="theory-grid">
+
+            <div class="theory-box">
+
+                <h3>🌱 Insertion</h3>
+
+                <p>
+                    Start from the root. Compare the new value with
+                    the current node. Smaller values go left and
+                    greater values go right until an empty position
+                    is found.
+                </p>
+
+            </div>
+
+
+            <div class="theory-box">
+
+                <h3>🔍 Searching</h3>
+
+                <p>
+                    Compare the target with each node. If the target
+                    is smaller, move to the left subtree. If greater,
+                    move to the right subtree.
+                </p>
+
+            </div>
+
+
+            <div class="theory-box">
+
+                <h3>🗑️ Deletion</h3>
+
+                <ul>
+                    <li>Leaf node → directly remove.</li>
+                    <li>One child → replace with child.</li>
+                    <li>Two children → use inorder successor.</li>
+                </ul>
+
+            </div>
+
+
+            <div class="theory-box">
+
+                <h3>🔄 Inorder</h3>
+
+                <p>
+                    Left → Root → Right
+                </p>
+
+                <br>
+
+                <p>
+                    In a valid BST, inorder traversal produces
+                    values in sorted ascending order.
+                </p>
+
+            </div>
+
+
+            <div class="theory-box">
+
+                <h3>🌲 Tree Height</h3>
+
+                <p>
+                    Height represents the number of levels in the
+                    longest path from the root to a leaf.
+                </p>
+
+            </div>
+
+
+            <div class="theory-box">
+
+                <h3>⚠️ Skewed BST</h3>
+
+                <p>
+                    If nodes are inserted in sorted order, the BST
+                    can become skewed and behave similarly to a
+                    linked list.
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- COMPLEXITY -->
+    <section class="card complexity">
+
+        <div class="card-title">
+            <h2>⏱️ Time Complexity</h2>
+        </div>
+
+        <table>
+
+            <thead>
+                <tr>
+                    <th>Operation</th>
+                    <th>Average</th>
+                    <th>Worst Case</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                <tr>
+                    <td>Search</td>
+                    <td>O(log n)</td>
+                    <td>O(n)</td>
+                </tr>
+
+                <tr>
+                    <td>Insertion</td>
+                    <td>O(log n)</td>
+                    <td>O(n)</td>
+                </tr>
+
+                <tr>
+                    <td>Deletion</td>
+                    <td>O(log n)</td>
+                    <td>O(n)</td>
+                </tr>
+
+                <tr>
+                    <td>Traversal</td>
+                    <td>O(n)</td>
+                    <td>O(n)</td>
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </section>
+
+</div>
+
+
+<footer>
+    <b>BST Studio</b> • Binary Search Tree Interactive Visualizer
+    <br>
+    Built for DSA Learning & Lab Practice 🌳
+</footer>
+
+
+<div class="toast" id="toast"></div>
+
+
+<script>
+
+/* =========================
+   BST NODE
+========================= */
+
+class Node{
+
+    constructor(value){
+
+        this.value=value;
+        this.left=null;
+        this.right=null;
+
+    }
+
+}
+
+
+let root=null;
+
+
+/* =========================
+   EXAMPLES
+========================= */
+
+const examples=[
+
+    [50,30,70,20,40,60,80],
+
+    [50,40,30,20,10],
+
+    [10,20,30,40,50],
+
+    [40,20,60,10,30,50,70],
+
+    [45,15,79,10,25,60,90,20,30],
+
+    [60,40,80,20,50,70,90,10,30],
+
+    [55,25,75,15,35,65,85,5,20],
+
+    [70,40,90,20,50,80,100,10,30],
+
+    [65,35,85,20,45,75,95,15,25],
+
+    [50,30,70,20,40,60,80,10,35,90],
+
+    [42,18,65,9,27,54,81,22,31],
+
+    [100,50,150,25,75,125,175,10,60,90],
+
+    [50,25,75,12,37,62,87,6,18],
+
+    [50,30,70,20,40,60,80,35,65],
+
+    [80,40,120,20,60,100,140,10,30,50,70],
+
+    [55,30,80,15,40,70,95,10,20,35,45]
+
+];
+
+
+/* =========================
+   INSERT
+========================= */
+
+function insert(root,value){
+
+    if(root===null){
+
+        return new Node(value);
+
+    }
+
+    if(value<root.value){
+
+        root.left=insert(root.left,value);
+
+    }
+
+    else if(value>root.value){
+
+        root.right=insert(root.right,value);
+
+    }
+
+    return root;
+
+}
+
+
+/* =========================
+   CONTAINS
+========================= */
+
+function contains(root,value){
+
+    if(root===null){
+        return false;
+    }
+
+    if(root.value===value){
+        return true;
+    }
+
+    if(value<root.value){
+        return contains(root.left,value);
+    }
+
+    return contains(root.right,value);
+
+}
+
+
+/* =========================
+   GET SEARCH PATH
+========================= */
+
+function getPath(value){
+
+    let path=[];
+    let current=root;
+
+    while(current!==null){
+
+        path.push(current.value);
+
+        if(value===current.value){
+            break;
+        }
+
+        if(value<current.value){
+            current=current.left;
+        }
+        else{
+            current=current.right;
+        }
+
+    }
+
+    return path;
+
+}
+
+
+/* =========================
+   INSERT VALUE
+========================= */
+
+function insertValue(){
+
+    const input=document.getElementById("valueInput");
+
+    const value=Number(input.value);
+
+    if(input.value===""){
+
+        setStatus("⚠️ Please enter a value.");
+
+        return;
+
+    }
+
+    if(contains(root,value)){
+
+        setStatus("⚠️ Duplicate values are not allowed.");
+
+        showToast("Duplicate value!");
+
+        return;
+
+    }
+
+    root=insert(root,value);
+
+    input.value="";
+
+    setStatus("✅ "+value+" inserted successfully.");
+
+    explainInsert(value);
+
+    drawTree();
+
+    showToast("Node "+value+" inserted");
+
+}
+
+
+/* =========================
+   SEARCH
+========================= */
+
+function searchValue(){
+
+    const input=document.getElementById("valueInput");
+
+    const value=Number(input.value);
+
+    if(input.value===""){
+
+        setStatus("⚠️ Enter a value to search.");
+
+        return;
+
+    }
+
+    const path=getPath(value);
+
+    displayPath(path);
+
+    clearNodeClasses();
+
+    path.forEach(v=>{
+
+        const el=document.getElementById("node-"+v);
+
+        if(el){
+            el.classList.add("path");
+        }
+
+    });
+
+
+    if(contains(root,value)){
+
+        const target=document.getElementById("node-"+value);
+
+        if(target){
+
+            target.classList.remove("path");
+            target.classList.add("found");
+
+        }
+
+        setStatus("🟢 "+value+" found!");
+
+        document.getElementById("explanation").innerHTML=
+
+        `
+        <b>Search successful.</b><br><br>
+        We started at the root and compared the target
+        value at every step. Since the target was found,
+        the search stops at <b>${value}</b>.
+        `;
+
+        showToast("Found "+value);
+
+    }
+    else{
+
+        setStatus("🔴 "+value+" was not found.");
+
+        document.getElementById("explanation").innerHTML=
+
+        `
+        <b>Search unsuccessful.</b><br><br>
+        The search followed the BST property until it
+        reached an empty position. Therefore,
+        <b>${value}</b> does not exist in this tree.
+        `;
+
+        showToast("Value not found");
+
+    }
+
+}
+
+
+/* =========================
+   DELETE
+========================= */
+
+function deleteNode(root,value){
+
+    if(root===null){
+        return null;
+    }
+
+    if(value<root.value){
+
+        root.left=deleteNode(root.left,value);
+
+    }
+
+    else if(value>root.value){
+
+        root.right=deleteNode(root.right,value);
+
+    }
+
+    else{
+
+        if(root.left===null){
+            return root.right;
+        }
+
+        if(root.right===null){
+            return root.left;
+        }
+
+        let successor=root.right;
+
+        while(successor.left!==null){
+            successor=successor.left;
+        }
+
+        root.value=successor.value;
+
+        root.right=deleteNode(
+            root.right,
+            successor.value
+        );
+
+    }
+
+    return root;
+
+}
+
+
+function deleteValue(){
+
+    const input=document.getElementById("valueInput");
+
+    const value=Number(input.value);
+
+    if(input.value===""){
+
+        setStatus("⚠️ Enter a value to delete.");
+
+        return;
+
+    }
+
+    if(!contains(root,value)){
+
+        setStatus("⚠️ Value does not exist.");
+
+        return;
+
+    }
+
+    root=deleteNode(root,value);
+
+    input.value="";
+
+    setStatus("🗑️ "+value+" deleted successfully.");
+
+    document.getElementById("explanation").innerHTML=
+
+    `
+    <b>Deletion completed.</b><br><br>
+    The BST deletion algorithm checks whether the
+    node has zero, one, or two children. The required
+    replacement was made while preserving the BST property.
+    `;
+
+    drawTree();
+
+    showToast("Node deleted");
+
+}
+
+
+/* =========================
+   BUILD FROM INPUT
+========================= */
+
+function buildFromInput(){
+
+    const text=document.getElementById("multiInput").value;
+
+    const values=text
+        .split(",")
+        .map(v=>Number(v.trim()))
+        .filter(v=>!isNaN(v));
+
+
+    if(values.length===0){
+
+        setStatus("⚠️ Enter valid comma-separated values.");
+
+        return;
+
+    }
+
+    root=null;
+
+    values.forEach(value=>{
+
+        root=insert(root,value);
+
+    });
+
+    setStatus(
+        "🌱 BST built using "+values.length+" values."
+    );
+
+    document.getElementById("explanation").innerHTML=
+
+    `
+    <b>Tree constructed.</b><br><br>
+    Values were inserted one by one according to the
+    BST rule:
+    <b>Left &lt; Root &lt; Right</b>.
+    `;
+
+    drawTree();
+
+    showToast("BST created");
+
+}
+
+
+/* =========================
+   RANDOM TREE
+========================= */
+
+function randomTree(){
+
+    root=null;
+
+    const used=new Set();
+
+    while(used.size<9){
+
+        used.add(
+            Math.floor(Math.random()*99)+1
+        );
+
+    }
+
+    [...used].forEach(value=>{
+
+        root=insert(root,value);
+
+    });
+
+    setStatus("🎲 Random BST generated.");
+
+    document.getElementById("explanation").innerHTML=
+
+    `
+    <b>Random BST generated.</b><br><br>
+    Nine unique values were randomly selected and
+    inserted into the tree.
+    `;
+
+    drawTree();
+
+    showToast("Random BST generated");
+
+}
+
+
+/* =========================
+   CLEAR
+========================= */
+
+function clearTree(){
+
+    root=null;
+
+    document.getElementById("searchPath").innerHTML=
+
+    `
+    <span style="color:var(--muted);font-size:13px;">
+        Search for a value to see the path.
+    </span>
+    `;
+
+    setStatus("🧹 Tree cleared.");
+
+    document.getElementById("explanation").innerHTML=
+        "Perform an operation to see how the BST works.";
+
+    drawTree();
+
+}
+
+
+/* =========================
+   LOAD EXAMPLE
+========================= */
+
+function loadExample(index){
+
+    root=null;
+
+    examples[index].forEach(value=>{
+
+        root=insert(root,value);
+
+    });
+
+    setStatus(
+        "📚 Example "+(index+1)+" loaded."
+    );
+
+    document.getElementById("explanation").innerHTML=
+
+    `
+    <b>Practice example loaded.</b><br><br>
+    Try searching, inserting and deleting different
+    values to understand how the BST changes.
+    `;
+
+    drawTree();
+
+    showToast("Example loaded");
+
+}
+
+
+/* =========================
+   TRAVERSALS
+========================= */
+
+function inorder(node,result=[]){
+
+    if(node!==null){
+
+        inorder(node.left,result);
+
+        result.push(node.value);
+
+        inorder(node.right,result);
+
+    }
+
+    return result;
+
+}
+
+
+function preorder(node,result=[]){
+
+    if(node!==null){
+
+        result.push(node.value);
+
+        preorder(node.left,result);
+
+        preorder(node.right,result);
+
+    }
+
+    return result;
+
+}
+
+
+function postorder(node,result=[]){
+
+    if(node!==null){
+
+        postorder(node.left,result);
+
+        postorder(node.right,result);
+
+        result.push(node.value);
+
+    }
+
+    return result;
+
+}
+
+
+/* =========================
+   HEIGHT
+========================= */
+
+function getHeight(node){
+
+    if(node===null){
+        return 0;
+    }
+
+    return 1+
+        Math.max(
+            getHeight(node.left),
+            getHeight(node.right)
+        );
+
+}
+
+
+/* =========================
+   COUNT
+========================= */
+
+function countNodes(node){
+
+    if(node===null){
+        return 0;
+    }
+
+    return 1+
+        countNodes(node.left)+
+        countNodes(node.right);
+
+}
+
+
+/* =========================
+   MIN
+========================= */
+
+function getMin(node){
+
+    if(node===null){
+        return null;
+    }
+
+    while(node.left!==null){
+        node=node.left;
+    }
+
+    return node.value;
+
+}
+
+
+/* =========================
+   MAX
+========================= */
+
+function getMax(node){
+
+    if(node===null){
+        return null;
+    }
+
+    while(node.right!==null){
+        node=node.right;
+    }
+
+    return node.value;
+
+}
+
+
+/* =========================
+   BALANCE
+========================= */
+
+function isBalanced(node){
+
+    if(node===null){
+        return true;
+    }
+
+    const left=getHeight(node.left);
+
+    const right=getHeight(node.right);
+
+    if(Math.abs(left-right)>1){
+        return false;
+    }
+
+    return isBalanced(node.left)&&
+           isBalanced(node.right);
+
+}
+
+
+/* =========================
+   DRAW TREE
+========================= */
+
+function drawTree(){
+
+    const canvas=document.getElementById("treeCanvas");
+
+    const nodesDiv=document.getElementById("nodes");
+
+    const svg=document.getElementById("edges");
+
+    const empty=document.getElementById("emptyTree");
+
+    nodesDiv.innerHTML="";
+    svg.innerHTML="";
+
+    if(root===null){
+
+        empty.style.display="grid";
+
+        updateStats();
+
+        return;
+
+    }
+
+    empty.style.display="none";
+
+
+    const h=getHeight(root);
+
+    const width=Math.max(
+        1200,
+        Math.pow(2,h-1)*115
+    );
+
+    canvas.style.width=width+"px";
+
+    canvas.style.height=
+        Math.max(550,h*110)+"px";
+
+
+    const positions=[];
+
+
+    function calculate(
+        node,
+        depth,
+        left,
+        right
+    ){
+
+        if(node===null){
+            return;
+        }
+
+        const x=(left+right)/2;
+
+        const y=65+depth*105;
+
+        positions.push({
+            node,
+            x,
+            y
+        });
+
+        calculate(
+            node.left,
+            depth+1,
+            left,
+            x
+        );
+
+        calculate(
+            node.right,
+            depth+1,
+            x,
+            right
+        );
+
+    }
+
+
+    calculate(
+        root,
+        0,
+        40,
+        width-40
+    );
+
+
+    positions.forEach(item=>{
+
+        const div=document.createElement("div");
+
+        div.className="node";
+
+        div.id="node-"+item.node.value;
+
+        div.textContent=item.node.value;
+
+        div.style.left=item.x+"px";
+
+        div.style.top=item.y+"px";
+
+        nodesDiv.appendChild(div);
+
+    });
+
+
+    positions.forEach(item=>{
+
+        const parent=item.node;
+
+        if(parent.left!==null){
+
+            const child=positions.find(
+                p=>p.node===parent.left
+            );
+
+            createEdge(
+                item.x,
+                item.y,
+                child.x,
+                child.y
+            );
+
+        }
+
+        if(parent.right!==null){
+
+            const child=positions.find(
+                p=>p.node===parent.right
+            );
+
+            createEdge(
+                item.x,
+                item.y,
+                child.x,
+                child.y
+            );
+
+        }
+
+    });
+
+
+    updateStats();
+
+}
+
+
+/* =========================
+   CREATE EDGE
+========================= */
+
+function createEdge(
+    x1,
+    y1,
+    x2,
+    y2
+){
+
+    const svg=document.getElementById("edges");
+
+    const line=document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "line"
+    );
+
+    line.setAttribute("x1",x1);
+    line.setAttribute("y1",y1+25);
+
+    line.setAttribute("x2",x2);
+    line.setAttribute("y2",y2-25);
+
+    line.setAttribute("class","edge");
+
+    svg.appendChild(line);
+
+}
+
+
+/* =========================
+   UPDATE STATS
+========================= */
+
+function updateStats(){
+
+    document.getElementById("nodeCount").textContent=
+        countNodes(root);
+
+    document.getElementById("height").textContent=
+        getHeight(root);
+
+    document.getElementById("minimum").textContent=
+        root===null?"—":getMin(root);
+
+    document.getElementById("maximum").textContent=
+        root===null?"—":getMax(root);
+
+
+    document.getElementById("inorder").textContent=
+        inorder(root).join(" → ")||"—";
+
+    document.getElementById("preorder").textContent=
+        preorder(root).join(" → ")||"—";
+
+    document.getElementById("postorder").textContent=
+        postorder(root).join(" → ")||"—";
+
+
+    const type=document.getElementById("treeType");
+
+    if(root===null){
+
+        type.textContent="Tree status: Empty";
+
+    }
+    else if(isBalanced(root)){
+
+        type.textContent=
+            "Tree status: 🌿 Relatively Balanced";
+
+    }
+    else{
+
+        type.textContent=
+            "Tree status: ⚠️ Unbalanced / Skewed";
+
+    }
+
+}
+
+
+/* =========================
+   DISPLAY SEARCH PATH
+========================= */
+
+function displayPath(path){
+
+    const box=document.getElementById("searchPath");
+
+    if(path.length===0){
+
+        box.innerHTML=
+            `<span style="color:var(--muted);font-size:13px;">
+                No path available.
+            </span>`;
+
+        return;
+
+    }
+
+    box.innerHTML="";
+
+    path.forEach((value,index)=>{
+
+        const item=document.createElement("span");
+
+        item.className="path-item";
+
+        item.textContent=value;
+
+        box.appendChild(item);
+
+        if(index<path.length-1){
+
+            const arrow=document.createElement("span");
+
+            arrow.className="arrow";
+
+            arrow.textContent="→";
+
+            box.appendChild(arrow);
+
+        }
+
+    });
+
+}
+
+
+/* =========================
+   CLEAR NODE CLASSES
+========================= */
+
+function clearNodeClasses(){
+
+    document
+        .querySelectorAll(".node")
+        .forEach(node=>{
+
+            node.classList.remove("found");
+            node.classList.remove("path");
+
+        });
+
+}
+
+
+/* =========================
+   INSERT EXPLANATION
+========================= */
+
+function explainInsert(value){
+
+    let current=root;
+
+    let steps=[];
+
+    while(current!==null){
+
+        if(value===current.value){
+            break;
+        }
+
+        if(value<current.value){
+
+            steps.push(
+                `${value} < ${current.value} → move LEFT`
+            );
+
+            current=current.left;
+
+        }
+        else{
+
+            steps.push(
+                `${value} > ${current.value} → move RIGHT`
+            );
+
+            current=current.right;
+
+        }
+
+    }
+
+    document.getElementById("explanation").innerHTML=
+
+    `
+    <b>Insertion of ${value}</b><br><br>
+    ${steps.join("<br>")}
+    <br><br>
+    The new node was placed while preserving
+    <b>LEFT &lt; ROOT &lt; RIGHT</b>.
+    `;
+
+}
+
+
+/* =========================
+   ENTER KEY
+========================= */
+
+function enterAction(event){
+
+    if(event.key==="Enter"){
+
+        insertValue();
+
+    }
+
+}
+
+
+/* =========================
+   STATUS
+========================= */
+
+function setStatus(message){
+
+    document.getElementById("status").textContent=
+        message;
+
+}
+
+
+/* =========================
+   TOAST
+========================= */
+
+function showToast(message){
+
+    const toast=document.getElementById("toast");
+
+    toast.textContent=message;
+
+    toast.classList.add("show");
+
+    setTimeout(()=>{
+
+        toast.classList.remove("show");
+
+    },1800);
+
+}
+
+
+/* =========================
+   THEME
+========================= */
+
+function toggleTheme(){
+
+    document.body.classList.toggle("dark");
+
+    const dark=
+        document.body.classList.contains("dark");
+
+    document.getElementById("themeBtn").textContent=
+        dark?"☀️":"🌙";
+
+    localStorage.setItem(
+        "bst-theme",
+        dark?"dark":"light"
+    );
+
+}
+
+
+/* =========================
+   RESTORE THEME
+========================= */
+
+if(localStorage.getItem("bst-theme")==="dark"){
+
+    document.body.classList.add("dark");
+
+    document.getElementById("themeBtn").textContent="☀️";
+
+}
+
+
+/* =========================
+   CENTER TREE
+========================= */
+
+function fitTree(){
+
+    const area=document.getElementById("treeArea");
+
+    area.scrollTo({
+
+        left:
+            (area.scrollWidth-area.clientWidth)/2,
+
+        top:0,
+
+        behavior:"smooth"
+
+    });
+
+}
+
+
+/* =========================
+   START WITH EXAMPLE
+========================= */
+
+loadExample(0);
+
+</script>
+
+</body>
+</html>
